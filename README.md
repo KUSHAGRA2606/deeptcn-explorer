@@ -23,6 +23,7 @@ browser** through shinylive / webR. There is no server: the first load takes abo
 | Ext 2 · Count heads | Gaussian vs negative binomial vs zero-inflated Poisson, the count-resolution trap |
 | Ext 3 · Memory | soft memory mask, annealing, padded histories, learned τ on traffic |
 | Ext 4 · Attention | attention matrix, neighbour mixing, permutation test, results |
+| Theory | formula cheat sheet with intuitions, animated interval-score demo |
 | Summary | what we learned, future ideas |
 
 Each page also has collapsible **Theory & formulas** panels.
@@ -44,7 +45,7 @@ shiny::runApp("source/app")                 # run locally in R
 shinylive::export("source/app", "site")     # rebuild the static site into ./site
 ```
 
-Then copy the contents of `site/` to the repository root.
+Then run `python source/patch_index.py site/index.html` (dark loading splash and page title) and copy the contents of `site/` to the repository root.
 
 ## Authors
 

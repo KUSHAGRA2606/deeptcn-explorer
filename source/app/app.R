@@ -10,43 +10,88 @@ suppressPackageStartupMessages({
   library(ggplot2)
 })
 
-# ---------------------------------------------------------------- look & feel
-COL <- c(blue = "#0072B2", orange = "#D55E00", green = "#009E73", grey = "#7f7f7f",
-         pink = "#CC79A7", yellow = "#E69F00", sky = "#56B4E9", dark = "#1f2937")
+# ---------------------------------------------------------------- look & feel (dark)
+BG <- "#0a1020"; CARD <- "#111a2e"; FG <- "#e2e8f0"; MUTED <- "#94a3b8"; GRID <- "#1e293b"; EDGE <- "#23304d"
+COL <- c(blue = "#38bdf8", orange = "#fb923c", green = "#34d399", grey = "#94a3b8",
+         pink = "#f472b6", yellow = "#facc15", sky = "#a78bfa", red = "#f87171", dark = FG)
 METHOD_COL <- c("Raw DeepTCN" = COL[["grey"]], "CQR pooled" = COL[["sky"]],
                 "CQR horizon" = COL[["blue"]], "CQR two-tail" = COL[["green"]],
                 "ACI" = COL[["orange"]])
 METHOD_LAB <- c(base = "Raw DeepTCN", cqr_pooled = "CQR pooled", cqr_horizon = "CQR horizon",
                 cqr_twotail = "CQR two-tail", aci = "ACI")
 
-theme_set(
-  theme_minimal(base_size = 14) +
-    theme(panel.grid.minor = element_blank(),
-          plot.title = element_text(face = "bold", size = 14),
-          plot.subtitle = element_text(colour = "#555555", size = 11.5),
-          legend.position = "bottom")
-)
+dark_theme <- theme_minimal(base_size = 14) +
+  theme(plot.background = element_rect(fill = CARD, colour = NA),
+        panel.background = element_rect(fill = CARD, colour = NA),
+        legend.background = element_rect(fill = CARD, colour = NA),
+        legend.key = element_rect(fill = CARD, colour = NA),
+        text = element_text(colour = FG),
+        axis.text = element_text(colour = MUTED),
+        panel.grid.major = element_line(colour = GRID, linewidth = 0.4),
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(face = "bold", size = 14),
+        plot.subtitle = element_text(colour = MUTED, size = 11.5),
+        legend.position = "bottom")
+# ggplot2 >= 4: default ink/paper so un-styled lines, points and labels suit the dark card
+if (exists("element_geom", asNamespace("ggplot2")))
+  dark_theme <- dark_theme + theme(geom = ggplot2::element_geom(ink = FG, paper = CARD, accent = COL[["blue"]]))
+theme_set(dark_theme)
 
 app_theme <- bs_theme(
-  version = 5, bootswatch = "flatly",
-  primary = COL[["blue"]], secondary = "#475569",
-  base_font = font_collection("Segoe UI", "Helvetica Neue", "Arial", "sans-serif"),
-  "navbar-bg" = "#0f2742"
+  version = 5, bg = BG, fg = FG,
+  primary = COL[["blue"]], secondary = "#334155", success = COL[["green"]],
+  warning = COL[["orange"]], danger = COL[["red"]], info = COL[["sky"]],
+  base_font = font_collection("Segoe UI", "Inter", "Helvetica Neue", "Arial", "sans-serif"),
+  "navbar-bg" = "#060b17", "card-bg" = CARD, "card-border-color" = EDGE,
+  "card-cap-bg" = "#0f1830", "accordion-bg" = CARD, "border-color" = EDGE,
+  "input-bg" = "#0f1830", "link-color" = COL[["blue"]]
 )
 
 css <- "
-.hero{background:linear-gradient(120deg,#0f2742 0%,#0072B2 100%);color:#fff;
-      border-radius:14px;padding:28px 30px;margin-bottom:18px}
-.hero h1{font-weight:800;font-size:2.0rem;margin-bottom:6px}
-.hero p{font-size:1.1rem;opacity:.92;margin:0}
-.step{border-left:5px solid #0072B2;padding:10px 14px;background:#f6f9fc;border-radius:8px;margin-bottom:8px}
-.tag{display:inline-block;background:#e8f1fa;color:#0b4f87;border-radius:999px;padding:2px 10px;
-     font-size:.85rem;font-weight:600;margin-right:6px}
-.big-q{font-size:1.05rem;font-weight:600}
-.muted{color:#64748b;font-size:.92rem}
-.kpi{font-size:1.6rem;font-weight:800}
-.card-header{font-weight:700}
-video{border-radius:10px;width:100%;background:#000}
+body{background:#0a1020}
+@keyframes heroShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes pulseGlow{0%,100%{box-shadow:0 0 0 rgba(56,189,248,0)}50%{box-shadow:0 0 22px rgba(56,189,248,.35)}}
+@keyframes floatDot{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.hero{background:linear-gradient(120deg,#0b1a3a,#1d4ed8,#0e7490,#7c3aed,#0b1a3a);background-size:300% 300%;
+      animation:heroShift 14s ease infinite;color:#fff;border-radius:16px;padding:30px 32px;margin-bottom:18px;
+      border:1px solid rgba(255,255,255,.08)}
+.hero h1{font-weight:800;font-size:2.1rem;margin-bottom:6px;letter-spacing:-.5px}
+.hero p{font-size:1.08rem;opacity:.93;margin:0}
+.card{animation:fadeUp .55s ease both;transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease}
+.card:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(56,189,248,.12);border-color:#2f4a7a}
+.card-header{font-weight:700;color:#cfe7ff}
+.step{border-left:4px solid #38bdf8;padding:10px 14px;background:rgba(56,189,248,.07);border-radius:10px;margin-bottom:8px;
+      animation:fadeUp .5s ease both}
+.step:nth-child(2){animation-delay:.08s}.step:nth-child(3){animation-delay:.16s}.step:nth-child(4){animation-delay:.24s}
+.tag{display:inline-block;background:rgba(56,189,248,.16);color:#7dd3fc;border-radius:999px;padding:2px 10px;
+     font-size:.85rem;font-weight:700;margin-right:6px}
+.big-q{font-size:1.05rem;font-weight:700;color:#f8fafc}
+.muted{color:#94a3b8;font-size:.92rem}
+.kpi{font-size:1.7rem;font-weight:800;color:#38bdf8}
+.vb-cyan{background:linear-gradient(135deg,#0369a1,#0891b2)!important;color:#fff!important;animation:pulseGlow 4s ease-in-out infinite}
+.vb-orange{background:linear-gradient(135deg,#9a3412,#ea580c)!important;color:#fff!important}
+.vb-green{background:linear-gradient(135deg,#065f46,#059669)!important;color:#fff!important}
+.vb-violet{background:linear-gradient(135deg,#4c1d95,#7c3aed)!important;color:#fff!important}
+.vb-slate{background:linear-gradient(135deg,#1e293b,#334155)!important;color:#fff!important}
+.ok-box{border-color:#34d399!important;background:rgba(52,211,153,.10)!important}
+.bad-box{border-color:#fb923c!important;background:rgba(251,146,60,.12)!important}
+.navbar{border-bottom:1px solid #1e293b}
+.navbar .nav-link{transition:color .2s}
+.navbar .nav-link.active{color:#38bdf8!important;box-shadow:inset 0 -3px 0 #38bdf8}
+.nav-tabs .nav-link.active{background:#111a2e!important;color:#38bdf8!important;border-color:#23304d #23304d #111a2e!important}
+.irs--shiny .irs-bar{background:linear-gradient(90deg,#0ea5e9,#a78bfa);border:none}
+.irs--shiny .irs-single,.irs--shiny .irs-from,.irs--shiny .irs-to{background:#0ea5e9}
+.irs--shiny .irs-line{background:#1e293b;border:none}
+.irs--shiny .irs-grid-text,.irs--shiny .irs-min,.irs--shiny .irs-max{color:#64748b;background:transparent}
+.slider-animate-button{color:#38bdf8!important;font-size:1.15rem;animation:floatDot 2.4s ease-in-out infinite}
+.table{color:#e2e8f0}
+.formula-card .card-body{font-size:.98rem}
+.mjx-chtml{color:#f1f5f9}
+video{border-radius:12px;width:100%;background:#000;border:1px solid #23304d}
+.recalculating{opacity:1!important;transition:none!important}
+.shiny-plot-output img{transition:opacity .25s ease}
+a{color:#38bdf8}
 "
 
 # formula helper: MathJax block inside an accordion
@@ -138,10 +183,10 @@ home_ui <- nav_panel(
   ),
   layout_columns(
     col_widths = c(3, 3, 3, 3),
-    value_box("Traffic QL50 (ours)", "0.068", p("ahead of DeepAR, SQF-RNN, DeepState"), theme = "primary"),
-    value_box("Raw 80% intervals cover", "89% / 73%", p("traffic / electricity: miscalibrated"), theme = "warning"),
-    value_box("After conformal calibration", "80.1%", p("traffic, with 15% narrower intervals"), theme = "success"),
-    value_box("Extensions tested", "4", p("all reuse the same calibration layer"), theme = "secondary")
+    value_box("Traffic QL50 (ours)", "0.068", p("ahead of DeepAR, SQF-RNN, DeepState"), class = "vb-cyan"),
+    value_box("Raw 80% intervals cover", "89% / 73%", p("traffic / electricity: miscalibrated"), class = "vb-orange"),
+    value_box("After conformal calibration", "80.1%", p("traffic, with 15% narrower intervals"), class = "vb-green"),
+    value_box("Extensions tested", "4", p("all reuse the same calibration layer"), class = "vb-violet")
   ),
   h4("The four extensions", style = "margin-top:10px;font-weight:700"),
   layout_columns(
@@ -166,8 +211,8 @@ problem_ui <- nav_panel(
       width = 290,
       sliderInput("p_n", "Number of related series", 2, 25, 8),
       sliderInput("p_share", "How much they share a common rhythm", 0, 1, 0.8, step = 0.05),
-      sliderInput("p_origin", "Forecast origin t (drag or press play)", 168, 600, 300, step = 6,
-                  animate = animationOptions(interval = 400, loop = TRUE)),
+      sliderInput("p_origin", "Forecast origin t (drag or press play)", 168, 600, 300, step = 12,
+                  animate = animationOptions(interval = 750, loop = TRUE)),
       radioButtons("p_proto", "Evaluation protocol", c("daily (paper)" = "daily", "hourly (ours)" = "hourly"), inline = TRUE),
       actionButton("p_seed", "New random panel", class = "btn-outline-primary btn-sm")
     ),
@@ -198,7 +243,8 @@ model_ui <- nav_panel(
       layout_sidebar(
         sidebar = sidebar(
           width = 280,
-          sliderInput("c_layers", "Residual blocks", 1, 7, 4),
+          sliderInput("c_layers", "Residual blocks (press ▶ to grow the network)", 1, 7, 4, step = 1,
+                      animate = animationOptions(interval = 1100, loop = TRUE)),
           sliderInput("c_k", "Kernel size k", 2, 3, 2, step = 1),
           radioButtons("c_dil", "Dilation", c("doubling 1,2,4,…" = "double", "all 1 (no dilation)" = "one")),
           radioButtons("c_nconv", "Convolutions per block", c("1" = 1, "2 (ours)" = 2), selected = 2, inline = TRUE),
@@ -250,7 +296,8 @@ model_ui <- nav_panel(
       layout_sidebar(
         sidebar = sidebar(
           width = 280,
-          sliderInput("q_q", "Quantile level q", 0.05, 0.95, 0.9, step = 0.05),
+          sliderInput("q_q", "Quantile level q (press ▶ to sweep)", 0.05, 0.95, 0.9, step = 0.05,
+                      animate = animationOptions(interval = 700, loop = TRUE)),
           selectInput("q_dist", "Shape of the data", c("skewed (like traffic)" = "skew", "symmetric" = "norm", "two peaks" = "bimodal")),
           actionButton("q_go", "New sample", class = "btn-outline-primary btn-sm")
         ),
@@ -329,6 +376,8 @@ ext1_ui <- nav_panel(
       layout_sidebar(
         sidebar = sidebar(
           width = 300,
+          sliderInput("e1_time", "▶ Play the test period", 40, 400, 400, step = 10,
+                      animate = animationOptions(interval = 650, loop = FALSE)),
           sliderInput("e1_width", "Model's interval width (1 = perfect)", 0.4, 1.8, 1.4, step = 0.05),
           sliderInput("e1_ncal", "Calibration points", 20, 1000, 300, step = 20),
           sliderInput("e1_shift", "Shift in the test period (noise ×)", 1, 3, 1, step = 0.1),
@@ -344,7 +393,7 @@ ext1_ui <- nav_panel(
           card(card_header("Rolling coverage (target 0.80)"), plotOutput("e1_roll", height = 250)),
           card(card_header("ACI's adaptive level αₜ"), plotOutput("e1_alpha", height = 250))
         ),
-        how_to("Try: width 1.4 (too wide) → CQR shrinks it to ~80%. Width 0.6 (too narrow) → CQR widens it. Shift 2× starting at step 150 → CQR under-covers, while ACI lowers αₜ and widens its intervals to catch up.")
+        how_to("Press ▶ on 'Play the test period' to watch the test week unfold. Try: width 1.4 (too wide) → CQR shrinks it to ~80%. Width 0.6 (too narrow) → CQR widens it. Shift 2× starting at step 150 → CQR under-covers, while ACI lowers αₜ and widens its intervals to catch up.")
       )
     ),
     nav_panel(
@@ -394,7 +443,8 @@ ext2_ui <- nav_panel(
   layout_sidebar(
     sidebar = sidebar(
       width = 290,
-      sliderInput("d_mu", "Expected occupancy μ", 0.02, 3, 0.4, step = 0.02),
+      sliderInput("d_mu", "Expected occupancy μ (press ▶ to morph)", 0.02, 3, 0.4, step = 0.1,
+                  animate = animationOptions(interval = 700, loop = TRUE)),
       sliderInput("d_sigma", "Gaussian σ", 0.05, 2, 0.4, step = 0.05),
       sliderInput("d_a", "NB dispersion a", 0.01, 2, 0.3, step = 0.01),
       sliderInput("d_pi", "ZIP extra zeros π", 0, 0.8, 0.1, step = 0.02),
@@ -426,9 +476,10 @@ ext3_ui <- nav_panel(
   layout_sidebar(
     sidebar = sidebar(
       width = 290,
-      sliderInput("g_tau", "Memory length τ (hours)", 0, 232, 72),
+      sliderInput("g_tau", "Memory length τ (hours, press ▶)", 0, 232, 72, step = 8,
+                  animate = animationOptions(interval = 600, loop = TRUE)),
       sliderInput("g_prog", "Training progress (anneals the sharpness s)", 0, 1, 0.5, step = 0.05,
-                  animate = animationOptions(interval = 300, loop = TRUE)),
+                  animate = animationOptions(interval = 650, loop = TRUE)),
       checkboxInput("g_pad", "Series started only 40 h ago (rest is padding)", TRUE)
     ),
     layout_columns(
@@ -456,7 +507,8 @@ ext4_ui <- nav_panel(
       sliderInput("t_n", "Lanes", 8, 40, 24),
       sliderInput("t_groups", "Groups of co-moving lanes", 1, 6, 3),
       sliderInput("t_noise", "How fuzzy the learned embeddings are", 0, 2, 0.5, step = 0.1),
-      sliderInput("t_alpha", "Attention weight α", -1, 1, 0.5, step = 0.05),
+      sliderInput("t_alpha", "Attention weight α (press ▶)", -1, 1, 0.5, step = 0.1,
+                  animate = animationOptions(interval = 750, loop = TRUE)),
       checkboxInput("t_diag", "Mask the diagonal (don't attend to yourself)", TRUE),
       uiOutput("t_lane_ui"),
       actionButton("t_go", "New lanes", class = "btn-outline-primary btn-sm")
@@ -476,6 +528,59 @@ ext4_ui <- nav_panel(
       p("$$A = \\text{softmax}\\Big(\\frac{EE^\\top}{\\sqrt d} - \\infty\\cdot I\\Big),\\qquad h \\leftarrow h + \\alpha\\,(A\\,h),\\qquad \\alpha_{\\text{init}} = 0$$"),
       p("Every training step sees one forecast origin for all lanes, so \\(A\\) spans the whole panel. Coherence \\(= \\frac1N\\sum_{i,k} A_{ik} C_{ik}\\) with \\(C\\) the correlation of de-seasonalised series, compared with 200 random relabellings.")
     )
+  )
+)
+
+fcard <- function(title, intuition, ...) {
+  card(class = "formula-card", card_header(title),
+       p(class = "muted", intuition), withMathJax(div(...)))
+}
+
+theory_ui <- nav_panel(
+  "Theory",
+  div(class = "hero", h1("Theory cheat sheet"),
+      p("Every formula behind the project, each with a one-line intuition. Open this page whenever a demo raises a 'why?'.")),
+  layout_columns(
+    col_widths = c(6, 6),
+    card(card_header("Interval score in motion"),
+         sliderInput("w_y", "Where the truth lands (press ▶)", -3, 3, -2.6, step = 0.2, width = "100%",
+                     animate = animationOptions(interval = 450, loop = TRUE)),
+         plotOutput("w_plot", height = 250),
+         how_to("A good interval is narrow and still contains the truth. Inside, you only pay its width; outside, you pay an extra 2/α = 10× the miss distance.")),
+    fcard("1 · Probabilistic forecasts", "Instead of one number, give a range with a promised hit rate.",
+          p("Quantile: \\(q_\\tau = F^{-1}(\\tau)\\). The 80% interval is \\([q_{0.1}, q_{0.9}]\\)."),
+          p("Coverage: $$\\widehat{\\text{cov}} = \\frac1n\\sum_{i} \\mathbf 1\\{\\ell_i \\le y_i \\le u_i\\} \\;\\overset{?}{\\approx}\\; 1-\\alpha = 0.8$$"),
+          p("Winkler (interval) score, lower is better: $$W = (u-\\ell) + \\tfrac{2}{\\alpha}(\\ell-y)\\mathbf 1\\{y<\\ell\\} + \\tfrac{2}{\\alpha}(y-u)\\mathbf 1\\{y>u\\}$$"))
+  ),
+  layout_columns(
+    col_widths = c(4, 4, 4),
+    fcard("2 · Causal, dilated, residual", "Look only at the past, look far cheaply, and keep gradients flowing.",
+          p("Causal dilated convolution: $$s(t)=\\sum_{k=0}^{K-1} w_k\\,x_{t-d k}$$"),
+          p("Residual block: \\(\\;x \\mapsto \\text{ReLU}\\big(x + F(x)\\big)\\), so a block can default to the identity."),
+          p("Batch norm: \\(\\hat z = \\dfrac{z-\\mu_B}{\\sqrt{\\sigma_B^2+\\epsilon}}\\,\\gamma+\\beta\\)."),
+          p("Receptive field: \\(r = 1 + n(K-1)\\sum_b d_b = 127\\) h for our encoder.")),
+    fcard("3 · Why direct beats autoregressive", "Fed-back mistakes compound; direct mistakes do not.",
+          p("For an AR(1) model with coefficient error \\(\\epsilon\\) the \\(h\\)-step forecast is \\((\\phi+\\epsilon)^h y_t\\), so its bias"),
+          p("$$(\\phi+\\epsilon)^h - \\phi^h \\approx h\\,\\phi^{h-1}\\epsilon$$ grows with \\(h\\)."),
+          p("DeepTCN fits each horizon directly: \\(\\hat y_{t+j} = f_j(h_t, X_{t+j})\\), so errors at different \\(j\\) do not feed each other.")),
+    fcard("4 · Learning quantiles", "The pinball loss is minimised exactly at the quantile.",
+          p("$$L_q(y,\\hat y) = \\max\\{q(y-\\hat y),\\,(q-1)(y-\\hat y)\\}$$"),
+          p("Setting the derivative of \\(\\mathbb E[L_q]\\) to zero: \\(-q\\,(1-F(\\hat y)) + (1-q)F(\\hat y) = 0 \\Rightarrow F(\\hat y) = q\\)."),
+          p("Total loss: \\(\\sum_{q\\in\\{.1,.5,.9\\}}\\sum_{j=1}^{24} L_q\\big(y_{t+j}, \\hat q_{t+j}\\big)\\)."))
+  ),
+  layout_columns(
+    col_widths = c(4, 4, 4),
+    fcard("5 · Conformal guarantees", "Past errors on fresh data tell you how much to widen.",
+          p("Exchangeability: the joint law of \\((Z_1,\\dots,Z_{n+1})\\) is unchanged by any permutation, so the test score is equally likely to fall at any rank."),
+          p("Hence with \\(Q\\) the \\(\\lceil(1-\\alpha)(n+1)\\rceil\\)-th score: $$P\\big(E_{n+1}\\le Q\\big) \\ge 1-\\alpha.$$"),
+          p("ACI: \\(\\alpha_{t+1}=\\alpha_t+\\gamma(\\alpha-\\text{err}_t)\\) gives \\(\\big|\\tfrac1T\\sum \\text{err}_t-\\alpha\\big| \\le \\tfrac{\\max(\\alpha_1,1-\\alpha_1)+\\gamma}{T\\gamma}\\) for any sequence.")),
+    fcard("6 · Count likelihoods", "Non-negative, skewed data deserve non-negative, skewed distributions.",
+          p("NB: \\(\\mathbb E=\\mu,\\ \\text{Var}=\\mu+a\\mu^2\\) (over-dispersed). ZIP: \\(\\mathbb E=(1-\\pi)\\lambda,\\ \\text{Var}=(1-\\pi)\\lambda(1+\\pi\\lambda)\\)."),
+          p("Positivity via softplus: \\(\\mu = \\nu\\log(1+e^{z})\\), with DeepAR scale \\(\\nu = 1+\\overline{|y|}\\)."),
+          p("Train by NLL: \\(-\\sum \\log p(c_{t+j}\\mid \\theta_{t+j})\\), with \\(c = \\text{round}(y\\,u)\\).")),
+    fcard("7 · Mask gradients & attention", "Soft masks keep τ learnable; the softmax temperature sets how focused attention is.",
+          p("Mask \\(m(l)=\\sigma((\\tau-l)/s)\\) has $$\\frac{\\partial m}{\\partial \\tau} = \\frac{m(1-m)}{s},$$ which is almost zero everywhere when \\(s\\) is small. That is why \\(s\\) starts large and is annealed."),
+          p("Attention \\(A_{ik} = \\dfrac{e^{\\,e_i^\\top e_k/\\sqrt d}}{\\sum_{k'\\ne i} e^{\\,e_i^\\top e_{k'}/\\sqrt d}}\\); permutation p-value \\(=\\frac1B\\#\\{\\text{null}\\ge\\text{obs}\\}\\)."))
   )
 )
 
@@ -519,7 +624,7 @@ ui <- page_navbar(
   header = tags$head(tags$style(HTML(css))),
   navbar_options = navbar_options(collapsible = TRUE),
   fillable = FALSE,
-  home_ui, problem_ui, model_ui, results_ui, ext1_ui, ext2_ui, ext3_ui, ext4_ui, summary_ui
+  home_ui, problem_ui, model_ui, results_ui, ext1_ui, ext2_ui, ext3_ui, ext4_ui, theory_ui, summary_ui
 )
 
 # ============================================================================
@@ -547,7 +652,7 @@ server <- function(input, output, session) {
     ggplot(d, aes(t, y)) +
       annotate("rect", xmin = t0 - 167, xmax = t0, ymin = -Inf, ymax = Inf, fill = COL[["blue"]], alpha = 0.12) +
       annotate("rect", xmin = t0 + 1, xmax = t0 + 24, ymin = -Inf, ymax = Inf, fill = COL[["orange"]], alpha = 0.25) +
-      geom_line(colour = "grey35", linewidth = 0.6) +
+      geom_line(colour = "#7f8ea8", linewidth = 0.6) +
       geom_line(data = d[d$t > t0 & d$t <= t0 + 24, ], colour = COL[["orange"]], linewidth = 1.2) +
       geom_vline(xintercept = t0, linetype = 2) +
       annotate("label", x = t0 - 84, y = max(d$y) * 1.05, label = "history: 168 h", colour = COL[["blue"]], size = 4) +
@@ -562,10 +667,10 @@ server <- function(input, output, session) {
                       start = c(0, 26, 40, 47), end = c(26, 40, 47, 54))
     ticks <- if (input$p_proto == "daily") 47 + 0:6 + 0.5 else seq(47, 54, length.out = 60)
     ggplot(seg) +
-      geom_rect(aes(xmin = start, xmax = end, ymin = 0, ymax = 1, fill = part), colour = "white") +
+      geom_rect(aes(xmin = start, xmax = end, ymin = 0, ymax = 1, fill = part), colour = CARD) +
       geom_text(aes(x = (start + end) / 2, y = 0.5, label = part), colour = "white", fontface = "bold", size = 4.5) +
       geom_point(data = data.frame(x = ticks), aes(x, 1.25), shape = 25, fill = COL[["orange"]], colour = COL[["orange"]], size = 2.2) +
-      scale_fill_manual(values = c(train = "#94a3b8", validation = COL[["sky"]], calibration = COL[["green"]], test = COL[["orange"]]), guide = "none") +
+      scale_fill_manual(values = c(train = "#334155", validation = COL[["sky"]], calibration = COL[["green"]], test = COL[["orange"]]), guide = "none") +
       scale_x_continuous(breaks = c(26, 40, 47, 54), labels = c("−28 d", "−14 d", "−7 d", "end")) +
       labs(x = NULL, y = NULL, subtitle = "▼ = forecast origins in the test week") +
       theme(axis.text.y = element_blank(), panel.grid = element_blank())
@@ -603,7 +708,7 @@ server <- function(input, output, session) {
     ggplot() +
       geom_segment(data = edges, aes(x, y, xend = xend, yend = yend), colour = COL[["orange"]], alpha = 0.45, linewidth = 0.5) +
       geom_point(data = nodes, aes(t, layer, colour = on, size = on)) +
-      scale_colour_manual(values = c(`FALSE` = "#d6dde6", `TRUE` = COL[["orange"]]), guide = "none") +
+      scale_colour_manual(values = c(`FALSE` = "#26324d", `TRUE` = COL[["orange"]]), guide = "none") +
       scale_size_manual(values = c(`FALSE` = 1, `TRUE` = 2.2), guide = "none") +
       scale_y_continuous(breaks = 0:L, labels = c("input", paste0("conv ", 1:L, "  (d=", d, ")"))) +
       labs(x = "time step (newest on the right)", y = NULL,
@@ -634,12 +739,12 @@ server <- function(input, output, session) {
                      xend = c(2.25, 2.25, 4.25, 4.25, 6.25), yend = c(3, 1, 2.25, 1.75, 2))
     fut <- data.frame(x = 7 + seq(-0.6, 0.6, length.out = 24), y = 1.25)
     p <- ggplot() +
-      geom_segment(data = ar, aes(x, y, xend = xend, yend = yend), arrow = arrow(length = unit(0.25, "cm")), colour = "grey40") +
-      geom_tile(data = bx, aes(x, y, fill = state), width = 1.5, height = 1, colour = "white", linewidth = 1) +
+      geom_segment(data = ar, aes(x, y, xend = xend, yend = yend), arrow = arrow(length = unit(0.25, "cm")), colour = MUTED) +
+      geom_tile(data = bx, aes(x, y, fill = state), width = 1.5, height = 1, colour = CARD, linewidth = 1) +
       geom_text(data = bx, aes(x, y, label = lab), size = 4.6, lineheight = 0.9,
-                colour = ifelse(bx$state == "later", "grey45", "white"), fontface = "bold") +
-      scale_fill_manual(values = c(now = COL[["orange"]], done = COL[["blue"]], later = "#e2e8f0"), guide = "none") +
-      coord_cartesian(xlim = c(0.2, 7.9), ylim = c(0.2, 3.7)) + theme_void()
+                colour = ifelse(bx$state == "later", "#64748b", "white"), fontface = "bold") +
+      scale_fill_manual(values = c(now = COL[["orange"]], done = COL[["blue"]], later = "#1b2640"), guide = "none") +
+      coord_cartesian(xlim = c(0.2, 7.9), ylim = c(0.2, 3.7)) + theme_void() + theme(plot.background = element_rect(fill = CARD, colour = NA))
     if (k == 6) p <- p + geom_point(data = fut, aes(x, y), colour = COL[["orange"]], size = 2) +
       annotate("text", x = 7, y = 0.95, label = "24 horizons at once", colour = COL[["orange"]], size = 3.8)
     p
@@ -697,7 +802,7 @@ server <- function(input, output, session) {
     best <- grid[which.min(risk)]; truth <- quantile(y, q)
     sc <- max(risk) / max(density(y)$y)
     ggplot() +
-      geom_histogram(aes(y, after_stat(density) * sc), bins = 45, fill = "#cbd5e1", colour = NA, data = data.frame(y = y)) +
+      geom_histogram(aes(y, after_stat(density) * sc), bins = 45, fill = "#334155", colour = NA, data = data.frame(y = y)) +
       geom_line(aes(grid, risk), data = data.frame(grid, risk), linewidth = 1.3, colour = COL[["blue"]]) +
       geom_vline(xintercept = truth, linetype = 2, linewidth = 0.9) +
       geom_point(aes(best, min(risk)), colour = COL[["green"]], size = 4) +
@@ -730,9 +835,9 @@ server <- function(input, output, session) {
   output$s_msg <- renderUI({
     d <- s_data(); big <- max(abs(d$scaled))
     if (big > 1e3)
-      div(class = "step", style = "border-color:#D55E00;background:#fff4ec",
+      div(class = "step", class = "bad-box",
           strong("Problem! "), sprintf("The scaled target reaches %s. A few windows like this dominate the whole loss.", format(signif(big, 3), big.mark = ",")))
-    else div(class = "step", style = "border-color:#009E73;background:#effaf5",
+    else div(class = "step", class = "ok-box",
              strong("Fine. "), sprintf("Scaled values stay around 1 (max %.2f): every series looks alike to the network.", big))
   })
 
@@ -745,7 +850,7 @@ server <- function(input, output, session) {
     d <- rbind(ours, pap)
     ggplot(d, aes(dataset, value, fill = who)) + geom_col(position = position_dodge(0.75), width = 0.7) +
       geom_text(aes(label = fmt(value)), position = position_dodge(0.75), vjust = -0.4, size = 4) +
-      scale_fill_manual(values = c(COL[["blue"]], "#9aa9bb"), name = NULL) +
+      scale_fill_manual(values = c(COL[["blue"]], "#64748b"), name = NULL) +
       scale_y_continuous(expand = expansion(mult = c(0, 0.15))) + labs(x = NULL, y = m)
   })
   output$r_train <- renderPlot({
@@ -768,7 +873,7 @@ server <- function(input, output, session) {
     d <- m_data()
     ggplot(d, aes(t)) + geom_line(aes(y = y, colour = "actual"), linewidth = 0.9) +
       geom_line(aes(y = f, colour = "median forecast"), linewidth = 0.9) +
-      scale_colour_manual(values = c(actual = "black", `median forecast` = COL[["blue"]]), name = NULL) + labs(x = "hour", y = NULL)
+      scale_colour_manual(values = c(actual = FG, `median forecast` = COL[["blue"]]), name = NULL) + labs(x = "hour", y = NULL)
   })
   output$m_vals <- renderUI({
     d <- m_data(); y <- d$y[25:120]; f <- d$f[25:120]
@@ -808,18 +913,19 @@ server <- function(input, output, session) {
     list(t = 1:nt, y = te$y, lo = lo, hi = hi, lq = lo - Q, uq = hi + Q, la = la, ua = ua, at = at, Q = Q)
   })
   e1_metrics <- reactive({
-    d <- e1()
-    m <- function(l, u) c(cov = mean(d$y >= l & d$y <= u), width = mean((u - l)[is.finite(u - l)]), wink = winkler(d$y, l, u))
+    d <- e1(); i <- seq_len(input$e1_time); y <- d$y[i]
+    m <- function(l, u) { l <- l[i]; u <- u[i]
+      c(cov = mean(y >= l & y <= u), width = mean((u - l)[is.finite(u - l)]), wink = winkler(y, l, u)) }
     rbind(Raw = m(d$lo, d$hi), CQR = m(d$lq, d$uq), ACI = m(d$la, d$ua))
   })
   output$e1_kpis <- renderUI({
     m <- e1_metrics()
-    box <- function(n, th) value_box(n, sprintf("%.1f%%", 100 * m[n, "cov"]),
-                                     p(sprintf("width %.2f · Winkler %.2f", m[n, "width"], m[n, "wink"])), theme = th)
-    layout_columns(col_widths = c(4, 4, 4), box("Raw", "secondary"), box("CQR", "success"), box("ACI", "warning"))
+    box <- function(n, cl) value_box(paste(n, "· coverage so far"), sprintf("%.1f%%", 100 * m[n, "cov"]),
+                                     p(sprintf("width %.2f · Winkler %.2f", m[n, "width"], m[n, "wink"])), class = cl)
+    layout_columns(col_widths = c(4, 4, 4), box("Raw", "vb-slate"), box("CQR", "vb-green"), box("ACI", "vb-orange"))
   })
   output$e1_series <- renderPlot({
-    d <- e1(); sh <- input$e1_show; k <- 1:200 + 100
+    d <- e1(); sh <- input$e1_show; Tn <- input$e1_time; k <- max(1, Tn - 149):Tn
     df <- data.frame(t = d$t[k], y = d$y[k])
     p <- ggplot(df, aes(t, y))
     if ("Raw" %in% sh) p <- p + geom_ribbon(aes(ymin = d$lo[k], ymax = d$hi[k]), fill = COL[["grey"]], alpha = 0.25)
@@ -828,27 +934,33 @@ server <- function(input, output, session) {
       ua <- d$ua[k]; la <- d$la[k]; ua[!is.finite(ua)] <- NA; la[!is.finite(la)] <- NA
       p <- p + geom_line(aes(y = la), colour = COL[["orange"]], linewidth = 0.9, linetype = 2) + geom_line(aes(y = ua), colour = COL[["orange"]], linewidth = 0.9, linetype = 2)
     }
-    if (input$e1_shift > 1) p <- p + geom_vline(xintercept = input$e1_shift_at, linetype = 3) +
-      annotate("label", x = input$e1_shift_at, y = max(df$y), label = "shift", size = 3.5)
-    p + geom_point(size = 1, colour = "black") +
-      labs(x = "test step", y = "value", subtitle = "grey band = raw · green = CQR · orange dashed = ACI (steps 101–300 shown)")
+    if (input$e1_shift > 1 && input$e1_shift_at %in% df$t) p <- p + geom_vline(xintercept = input$e1_shift_at, linetype = 3, colour = COL[["red"]]) +
+      annotate("label", x = input$e1_shift_at, y = max(df$y), label = "shift begins", size = 3.5, colour = COL[["red"]])
+    p + geom_point(size = 1.1, colour = FG) +
+      geom_point(data = df[nrow(df), ], size = 3.5, colour = COL[["yellow"]]) +
+      labs(x = "test step", y = "value", subtitle = sprintf("grey band = raw · green = CQR · orange dashed = ACI · step %d of 400", Tn))
   })
   output$e1_roll <- renderPlot({
-    d <- e1(); W <- 40
+    d <- e1(); W <- 40; Tn <- input$e1_time
     roll <- function(l, u) { inside <- as.numeric(d$y >= l & d$y <= u); as.numeric(stats::filter(inside, rep(1 / W, W), sides = 1)) }
     df <- rbind(data.frame(t = d$t, c = roll(d$lo, d$hi), m = "Raw DeepTCN"),
                 data.frame(t = d$t, c = roll(d$lq, d$uq), m = "CQR two-tail"),
                 data.frame(t = d$t, c = roll(d$la, d$ua), m = "ACI"))
     df <- df[df$m %in% c(if ("Raw" %in% input$e1_show) "Raw DeepTCN", if ("CQR" %in% input$e1_show) "CQR two-tail", if ("ACI" %in% input$e1_show) "ACI"), ]
-    ggplot(df, aes(t, c, colour = m)) + geom_hline(yintercept = 0.8, linetype = 2) + geom_line(linewidth = 1, na.rm = TRUE) +
+    df <- df[df$t <= Tn, ]
+    ggplot(df, aes(t, c, colour = m)) + geom_hline(yintercept = 0.8, linetype = 2) + geom_line(linewidth = 1.1, na.rm = TRUE) +
+      geom_point(data = df[df$t == Tn, ], size = 3, na.rm = TRUE) + scale_x_continuous(limits = c(0, 400)) +
       scale_colour_manual(values = c("Raw DeepTCN" = COL[["grey"]], "CQR two-tail" = COL[["green"]], ACI = COL[["orange"]]),
                           labels = c("Raw DeepTCN" = "Raw", "CQR two-tail" = "CQR", ACI = "ACI"), name = NULL) +
       coord_cartesian(ylim = c(0.3, 1)) + labs(x = "test step", y = "coverage (last 40)")
   })
   output$e1_alpha <- renderPlot({
-    d <- e1()
-    ggplot(data.frame(t = d$t, a = d$at), aes(t, a)) + geom_hline(yintercept = 0.2, linetype = 2) +
-      geom_hline(yintercept = 0, linetype = 3, colour = "grey50") + geom_line(colour = COL[["orange"]], linewidth = 1.1) +
+    d <- e1(); Tn <- input$e1_time
+    df <- data.frame(t = d$t, a = d$at)[seq_len(Tn), ]
+    ggplot(df, aes(t, a)) + geom_hline(yintercept = 0.2, linetype = 2) +
+      geom_hline(yintercept = 0, linetype = 3, colour = MUTED) + geom_line(colour = COL[["orange"]], linewidth = 1.2) +
+      geom_point(data = df[nrow(df), ], colour = COL[["yellow"]], size = 3.5) +
+      scale_x_continuous(limits = c(0, 400)) + coord_cartesian(ylim = range(c(d$at, 0, 0.25))) +
       labs(x = "test step", y = expression(alpha[t]), subtitle = "falls after misses (wider intervals), rises after hits")
   })
 
@@ -881,7 +993,7 @@ server <- function(input, output, session) {
     g <- aggregate(alpha ~ origin, a, mean); lo <- aggregate(alpha ~ origin, a, min); hi <- aggregate(alpha ~ origin, a, max)
     ggplot() + geom_ribbon(aes(x = lo$origin, ymin = lo$alpha, ymax = hi$alpha), fill = COL[["orange"]], alpha = 0.18) +
       geom_line(aes(g$origin, g$alpha), colour = COL[["orange"]], linewidth = 1.1) +
-      geom_hline(yintercept = 0.2, linetype = 2) + geom_hline(yintercept = 0, linetype = 3, colour = "grey50") +
+      geom_hline(yintercept = 0.2, linetype = 2) + geom_hline(yintercept = 0, linetype = 3, colour = MUTED) +
       labs(x = "hourly test origin", y = expression(alpha[t]), subtitle = "line = mean over horizons · band = range")
   })
   output$e1r_ex <- renderPlot({
@@ -896,7 +1008,7 @@ server <- function(input, output, session) {
   output$b_out <- renderUI({
     B <- (0.8 + input$b_d * input$b_g) / (input$b_T * input$b_g)
     ok <- B < 1
-    withMathJax(div(class = "step", style = if (ok) "border-color:#009E73;background:#effaf5" else "border-color:#D55E00;background:#fff4ec",
+    withMathJax(div(class = paste("step", if (ok) "ok-box" else "bad-box"),
         p(sprintf("$$B = \\frac{\\max(\\alpha,1-\\alpha) + \\delta\\gamma}{T\\gamma} = %.2f$$", B)),
         strong(if (ok) "Informative: long-run miscoverage is guaranteed to be within B of 0.20." else "Vacuous: B ≥ 1 guarantees nothing.")))
   })
@@ -916,7 +1028,7 @@ server <- function(input, output, session) {
     pneg <- pnorm(0, mu, sg)
     width <- 0.38 / u
     ggplot() +
-      geom_area(aes(x[x <= 0], gd[x <= 0] * sc), fill = "#ef4444", alpha = 0.35) +
+      geom_area(aes(x[x <= 0], gd[x <= 0] * sc), fill = COL[["red"]], alpha = 0.4) +
       geom_line(aes(x, gd * sc, colour = "Gaussian"), linewidth = 1.1) +
       geom_col(aes(k / u - width / 2, nb, fill = "Negative binomial"), width = width, alpha = 0.85) +
       geom_col(aes(k / u + width / 2, zip, fill = "Zero-inflated Poisson"), width = width, alpha = 0.85) +
@@ -944,7 +1056,7 @@ server <- function(input, output, session) {
                                                    head = ifelse(m == "DeepTCN-negbin", "Negative binomial", "Zero-inflated Poisson"))
     }))
     d$metric <- factor(d$metric, levels = cols)
-    ggplot(d, aes(metric, change, fill = head)) + annotate("rect", xmin = -Inf, xmax = Inf, ymin = -3, ymax = 3, fill = "grey92") +
+    ggplot(d, aes(metric, change, fill = head)) + annotate("rect", xmin = -Inf, xmax = Inf, ymin = -3, ymax = 3, fill = "#1b2640") +
       geom_col(position = position_dodge(0.8), width = 0.75) + geom_hline(yintercept = 0) +
       scale_fill_manual(values = c("Negative binomial" = COL[["pink"]], "Zero-inflated Poisson" = COL[["yellow"]]), name = NULL) +
       labs(x = NULL, y = "% change vs quantile head", subtitle = "above 0 = worse · grey = ±3% noise band")
@@ -971,19 +1083,38 @@ server <- function(input, output, session) {
   output$g_input <- renderPlot({
     d <- g_series()
     ggplot(d, aes(age)) + geom_area(aes(y = m * max(d$y)), fill = COL[["orange"]], alpha = 0.18) +
-      geom_line(aes(y = y), colour = "grey65", linewidth = 0.7) + geom_line(aes(y = y * m), colour = COL[["blue"]], linewidth = 1.1) +
+      geom_line(aes(y = y), colour = "#64748b", linewidth = 0.7) + geom_line(aes(y = y * m), colour = COL[["blue"]], linewidth = 1.1) +
       scale_x_reverse() + labs(x = "age of the hour (0 = newest, right)", y = "value",
                                subtitle = if (input$g_pad) "padded zeros older than 40 h: a short τ hides them" else "full history")
   })
   output$g_res <- renderPlot({
     r <- ext34[ext34$row %in% c("tau", "both"), ]
     d <- data.frame(row = c("+ memory", "+ both"), med = r$tau_median, lo = r$tau_min, hi = r$tau_max)
-    ggplot(d, aes(med, row)) + geom_vline(xintercept = c(168, 232), linetype = c(3, 2), colour = c("grey40", COL[["orange"]])) +
+    ggplot(d, aes(med, row)) + geom_vline(xintercept = c(168, 232), linetype = c(3, 2), colour = c(MUTED, COL[["orange"]])) +
       geom_segment(aes(x = lo, xend = hi, yend = row), colour = COL[["blue"]], linewidth = 1.2) +
       geom_point(size = 4, colour = COL[["blue"]]) +
       annotate("text", x = 170, y = 2.45, label = "window L = 168 h", hjust = 0, size = 3.6) +
       annotate("text", x = 230, y = 0.55, label = "fully open (232 h)", hjust = 1, size = 3.6, colour = COL[["orange"]]) +
       coord_cartesian(xlim = c(0, 240)) + labs(x = "learned memory length τ (hours) across 320 lanes", y = NULL)
+  })
+
+  # ------------------------------------------------------------ theory: interval score in motion
+  output$w_plot <- renderPlot({
+    y <- input$w_y; lo <- -1; hi <- 1; a <- 0.2
+    pen <- (2 / a) * max(lo - y, 0) + (2 / a) * max(y - hi, 0)
+    grid <- seq(-3, 3, length.out = 300)
+    sc <- (hi - lo) + (2 / a) * pmax(lo - grid, 0) + (2 / a) * pmax(grid - hi, 0)
+    inside <- y >= lo && y <= hi
+    ggplot() +
+      annotate("rect", xmin = lo, xmax = hi, ymin = -Inf, ymax = Inf, fill = COL[["green"]], alpha = 0.12) +
+      geom_line(aes(grid, sc), colour = COL[["blue"]], linewidth = 1.3) +
+      geom_segment(aes(x = y, xend = y, y = 0, yend = (hi - lo) + pen),
+                   colour = if (inside) COL[["green"]] else COL[["orange"]], linewidth = 1.6) +
+      geom_point(aes(y, (hi - lo) + pen), colour = COL[["yellow"]], size = 4.5) +
+      annotate("text", x = 0, y = 26, label = "80% interval", colour = COL[["green"]], size = 4.2) +
+      coord_cartesian(ylim = c(0, 28)) +
+      labs(x = "true value y (interval = [-1, 1])", y = "Winkler score",
+           subtitle = sprintf("score = width 2.0 + penalty %.1f = %.1f  (%s)", pen, 2 + pen, if (inside) "covered" else "missed"))
   })
 
   # ------------------------------------------------------------ ext 4 attention
@@ -1005,10 +1136,10 @@ server <- function(input, output, session) {
     a <- att(); N <- a$N
     d <- expand.grid(to = 1:N, from = 1:N); d$w <- as.vector(t(a$A))
     ggplot(d, aes(to, from, fill = w)) + geom_tile() +
-      scale_fill_gradient(low = "#f1f5f9", high = COL[["blue"]], name = "weight") +
+      scale_fill_gradient(low = "#0f172a", high = COL[["blue"]], name = "weight") +
       scale_y_reverse() + coord_equal() + labs(x = "attends to lane", y = "lane") +
       theme(panel.grid = element_blank(), legend.position = "right")
-  })
+  }, bg = CARD)
   output$t_mix <- renderPlot({
     a <- att(); i <- if (is.null(input$t_lane)) 1 else min(input$t_lane, a$N)
     own <- a$Y[i, ]; nb <- as.vector(a$A[i, ] %*% a$Y); mixed <- own + input$t_alpha * (nb - mean(nb))
@@ -1016,7 +1147,7 @@ server <- function(input, output, session) {
                     s = rep(c("own summary h", "neighbours A·h", "result h + α·A·h"), each = 48))
     top <- order(a$A[i, ], decreasing = TRUE)[1:3]
     ggplot(d, aes(h, v, colour = s, linewidth = s)) + geom_line() +
-      scale_colour_manual(values = c("own summary h" = "grey45", "neighbours A·h" = COL[["green"]], "result h + α·A·h" = COL[["orange"]]), name = NULL) +
+      scale_colour_manual(values = c("own summary h" = MUTED, "neighbours A·h" = COL[["green"]], "result h + α·A·h" = COL[["orange"]]), name = NULL) +
       scale_linewidth_manual(values = c(0.8, 1.4, 0.9), guide = "none") +
       labs(x = "hour", y = "signal", subtitle = sprintf("lane %d (group %d) · top neighbours: %s", i, a$grp[i], paste(top, collapse = ", ")))
   })
@@ -1026,7 +1157,7 @@ server <- function(input, output, session) {
     obs <- sum(A * C) / N
     set.seed(1); null <- replicate(200, { p <- sample(N); sum(A[p, p] * C) / N })
     pv <- mean(null >= obs)
-    ggplot(data.frame(null = null), aes(null)) + geom_histogram(bins = 30, fill = "#cbd5e1") +
+    ggplot(data.frame(null = null), aes(null)) + geom_histogram(bins = 30, fill = "#334155") +
       geom_vline(xintercept = obs, colour = COL[["orange"]], linewidth = 1.4) +
       labs(x = "coherence  Σ A·C / N", y = "shuffled embeddings",
            subtitle = sprintf("observed %.3f · p = %s", obs, if (pv == 0) "< 0.005" else fmt(pv, 3)))
@@ -1038,7 +1169,7 @@ server <- function(input, output, session) {
       v <- ext34[ext34$row == r, cols]; data.frame(metric = cols, change = 100 * (unlist(v) - unlist(b)) / unlist(b), row = lab[[r]])
     }))
     d$metric <- factor(d$metric, levels = cols); d$row <- factor(d$row, levels = lab)
-    ggplot(d, aes(metric, change, fill = row)) + annotate("rect", xmin = -Inf, xmax = Inf, ymin = -3, ymax = 3, fill = "grey92") +
+    ggplot(d, aes(metric, change, fill = row)) + annotate("rect", xmin = -Inf, xmax = Inf, ymin = -3, ymax = 3, fill = "#1b2640") +
       geom_col(position = position_dodge(0.8), width = 0.75) + geom_hline(yintercept = 0) +
       scale_fill_manual(values = c(COL[["blue"]], COL[["green"]], COL[["orange"]]), name = NULL) +
       coord_cartesian(ylim = c(-6, 6)) + labs(x = NULL, y = "% change vs baseline", subtitle = "all changes inside the ±3% noise band")
