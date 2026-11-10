@@ -9,7 +9,7 @@ extensions.
 
 The site is written entirely in **R** (shiny, bslib, ggplot2) and runs **in the visitor's
 browser** through shinylive / webR. There is no server: the first load takes about
-20–30 seconds while R starts in the browser.
+30–60 seconds while R starts in the browser.
 
 ## What's inside
 
