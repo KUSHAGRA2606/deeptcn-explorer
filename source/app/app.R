@@ -131,6 +131,27 @@ video_src <- tryCatch(
          jsonlite::base64_enc(readBin("deeptcn_dataflow.mp4", "raw", file.size("deeptcn_dataflow.mp4")))),
   error = function(e) "deeptcn_dataflow.mp4")
 
+# Manim animations: served from app/videos when run locally, and from the site's
+# videos/ folder (next to the exported app) when running in the browser via shinylive.
+ANIM_BASE <- if (dir.exists("videos")) {
+  shiny::addResourcePath("anim", normalizePath("videos"))
+  "anim"
+} else "../videos"
+ANIM <- list(
+  c("Intro", "The big picture", "Many related series, one shared network, a range instead of a single number."),
+  c("ForecastWindow", "What is forecast", "Look back 168 hours, forecast the next 24, as 10/50/90% quantiles."),
+  c("DilatedConvolution", "Dilated causal convolutions", "Watch the receptive field double layer by layer, never peeking at the future."),
+  c("EncoderDecoder", "Encoder → decoder", "One history summary, a shared decoder, all 24 hours at once, and why that avoids error build-up."),
+  c("PinballLoss", "The pinball loss", "Sweep q and see the minimum of the loss track the true quantile."),
+  c("ConformalCalibration", "Ext 1 · Calibration", "CQR shrinks a too-wide interval to 80%; ACI adapts its level when the future shifts."),
+  c("CountHeads", "Ext 2 · Count heads", "Gaussian vs negative binomial vs zero-inflated Poisson for non-negative data."),
+  c("MemoryMask", "Ext 3 · Learned memory", "A soft mask learns how far back to look, and sharpens as training anneals."),
+  c("CrossSeriesAttention", "Ext 4 · Attention", "Lanes attend to their own group; the attention matrix forms blocks."),
+  c("Results", "What we found", "Coverage before and after calibration, and the lessons of the project.")
+)
+anim_video <- function(file, poster_note = NULL)
+  tags$video(src = paste0(ANIM_BASE, "/", file), controls = NA, preload = "metadata", playsinline = NA)
+
 # ---------------------------------------------------------------- small helpers
 sigmoid <- function(x) 1 / (1 + exp(-x))
 pinball <- function(y, yhat, q) { d <- y - yhat; pmax(q * d, (q - 1) * d) }
@@ -201,7 +222,7 @@ home_ui <- nav_panel(
          p("Attention finds lanes that move together, but accuracy does not improve."))
   ),
   div(class = "muted", style = "margin-top:6px",
-      "Suggested path: Problem → Model → Training & metrics → Replication → Extensions 1–4 → Summary.")
+      "Suggested path: watch the Animations first → The problem → DeepTCN model → Replication → Extensions 1–4 → Theory → Summary.")
 )
 
 problem_ui <- nav_panel(
@@ -584,6 +605,20 @@ theory_ui <- nav_panel(
   )
 )
 
+anim_ui <- nav_panel(
+  "Animations",
+  div(class = "hero", h1("DeepTCN in motion"),
+      p("The paper and our four extensions, animated in the style of 3Blue1Brown. Made with Manim, the Python animation engine behind 3Blue1Brown's videos.")),
+  card(card_header("The full film (all chapters, about 4 minutes)"),
+       anim_video("DeepTCN_in_motion.mp4"),
+       how_to("Tip: use full screen. Each chapter is also below, so you can replay the part you need.")),
+  h4("Chapters", style = "margin-top:14px;font-weight:700"),
+  do.call(layout_column_wrap, c(list(width = 1 / 2, heights_equal = "row"), lapply(seq_along(ANIM), function(i) {
+    a <- ANIM[[i]]
+    card(card_header(sprintf("%d · %s", i, a[2])), anim_video(paste0(a[1], ".mp4")), p(class = "muted", a[3]))
+  })))
+)
+
 summary_ui <- nav_panel(
   "Summary",
   div(class = "hero", h1("What we learned"),
@@ -624,7 +659,7 @@ ui <- page_navbar(
   header = tags$head(tags$style(HTML(css))),
   navbar_options = navbar_options(collapsible = TRUE),
   fillable = FALSE,
-  home_ui, problem_ui, model_ui, results_ui, ext1_ui, ext2_ui, ext3_ui, ext4_ui, theory_ui, summary_ui
+  home_ui, anim_ui, problem_ui, model_ui, results_ui, ext1_ui, ext2_ui, ext3_ui, ext4_ui, theory_ui, summary_ui
 )
 
 # ============================================================================

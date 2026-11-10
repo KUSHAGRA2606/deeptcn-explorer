@@ -17,6 +17,7 @@ app/
 ├── app.R                    the whole website (pages, demos, plots)
 ├── deeptcn_dataflow.mp4     the data-flow animation on the Home page
 ├── data/                    21 CSV files with our experiment results
+├── videos/                  Manim animations (Animations page); optional
 └── README.md                this file
 ```
 
@@ -63,6 +64,8 @@ and press **Esc** (or the red Stop button in RStudio) to close it.
 
 ## Notes
 
+- **Animations page:** the Manim videos play from the `videos` folder. If it is
+  missing, every other page still works.
 - **Formulas need internet.** They are drawn by MathJax, which loads online. Offline,
   everything else works, but formulas show as raw LaTeX text.
 - **Package warnings** such as "package was built under R version …" are harmless.
